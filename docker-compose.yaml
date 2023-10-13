@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  client:
+    image: calculator/client
+    build:
+      context: .
+      dockerfile: Client/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80         
+    ports:
+      - "5100:80"     
+  server:
+    image: calculator/server
+    build:
+      context: .
+      dockerfile: Server/Dockerfile  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=https://+:443
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=mypass123
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/ssl/certs/localhost.pfx      
+    volumes:
+      - ./Server/Certs:/etc/ssl/certs:ro
+    ports:   
+      - "5200:443"      

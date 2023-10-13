@@ -1,0 +1,87 @@
+﻿@page "/"
+@using CalculatorApp.Client.Pages.Components
+@using CalculatorApp.Shared;
+@using Grpc.Net.Client
+@using Grpc.Net.Client.Web
+@inject CalculatorApp.Shared.CalculatorApi.CalculatorApiClient grpcClient
+
+<PageTitle>Kalkulačka</PageTitle>
+
+<br />
+<div class="m-3 pb-0" style="text-align:center">
+	<Calculator @bind-Example="Example"></Calculator>
+	<History Examples="@examples"></History>
+	<br /><br />
+	<p class="text-danger">@errorMessage</p>
+</div>
+
+@code {
+
+	private string examples = string.Empty;
+	private string example = string.Empty;
+	private string errorMessage = string.Empty;
+
+	public string Example
+	{
+		get
+		{
+			return example;
+		}
+		set
+		{
+			example = value;
+
+			_ = SaveExampleAsync();
+		}
+	}
+
+	/// <summary>
+	/// Metoda pro uložení příkladu početní operace
+	/// </summary>
+	private async Task SaveExampleAsync()
+	{
+		try
+		{
+			await grpcClient.SaveExampleAsync(new SaveExampleRequest() { Example = example });
+		}
+		catch (Exception ex)
+		{
+			errorMessage = ex.Message;
+		}
+
+		_ = GetExamples();
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Metoda pro získání seznamu výpočtů uložených v databázi
+	/// </summary>
+	/// <returns>V případě úspěchu vrátí posledních deset výpočtů</returns>
+	private async Task GetExamples()
+	{
+		GetExamplesResponse result = new();
+		examples = string.Empty;
+
+		try
+		{
+			result = await grpcClient.GetExamplesAsync(new Google.Protobuf.WellKnownTypes.Empty());
+		}
+		catch (Exception ex)
+		{
+			errorMessage = ex.Message;
+		}
+
+		examples = String.Join("\n", result.Examples);
+
+		StateHasChanged();
+	}
+
+	/// <summary>
+	/// Inicializační metoda
+	/// </summary>
+	/// <returns></returns>
+	protected override async Task OnInitializedAsync()
+	{
+		await GetExamples();
+	}
+}
