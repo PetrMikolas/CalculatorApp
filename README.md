@@ -5,7 +5,7 @@ Naprogramováno v jazyce C# v prostředí Microsoft .NET 7
 
 - Client - Blazor WebAssembly 
 - Server - Blazor Server 
-- API - qRPC
+- API - gRPC
 
 ![Screenshot](Kalkulačka_1.png)
 ![Screenshot](Kalkulačka_2.png)
